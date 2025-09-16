@@ -103,7 +103,7 @@ if __name__ == "__main__":
         # For DagsHub, avoid Model Registry (not supported)
         if tracking_url_type_store != "file":
             # Save model locally
-            mlflow.sklearn.save_model(lr, "model")
+            mlflow.sklearn.save_model(lr, f"model_{int(time.time())}")
             # Log model folder as artifacts
             mlflow.log_artifacts("model", artifact_path="model")
         else:
