@@ -13,7 +13,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import ElasticNet
 from urllib.parse import urlparse
 import mlflow
-from mlflow.models.signature import infer_signature
 import mlflow.sklearn
 
 import logging
@@ -77,25 +76,35 @@ if __name__ == "__main__":
 
         
         # # For remote server only (Dagshub)
-        # remote_server_uri = "https://dagshub.com/entbappy/MLflow-Basic-Demo.mlflow"
-        # mlflow.set_tracking_uri(remote_server_uri)
-
-
-        # For remote server only (AWS)
-        remote_server_uri = "http://ec2-54-147-36-34.compute-1.amazonaws.com:5000/"
+        remote_server_uri = "https://dagshub.com/ps3493049/MLflow.mlflow"
         mlflow.set_tracking_uri(remote_server_uri)
 
 
+        # # For remote server only (AWS)
+        # remote_server_uri = "http://ec2-54-147-36-34.compute-1.amazonaws.com:5000/"
+        # mlflow.set_tracking_uri(remote_server_uri)
+
+
+
+        # tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
+
+        # # Model registry does not work with file store
+        # if tracking_url_type_store != "file":
+        #     # Register the model
+        #     # There are other ways to use the Model Registry, which depends on the use case,
+        #     # please refer to the doc for more information:
+        #     # https://mlflow.org/docs/latest/model-registry.html#api-workflow
+        #     mlflow.sklearn.log_model(
+        #         lr, "model", registered_model_name="ElasticnetWineModel")
+        # else:
+        #     mlflow.sklearn.log_model(lr, "model")
 
         tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
-
-        # Model registry does not work with file store
+        # For DagsHub, avoid Model Registry (not supported)
         if tracking_url_type_store != "file":
-            # Register the model
-            # There are other ways to use the Model Registry, which depends on the use case,
-            # please refer to the doc for more information:
-            # https://mlflow.org/docs/latest/model-registry.html#api-workflow
-            mlflow.sklearn.log_model(
-                lr, "model", registered_model_name="ElasticnetWineModel")
+            # Save model locally
+            mlflow.sklearn.save_model(lr, "model")
+            # Log model folder as artifacts
+            mlflow.log_artifacts("model", artifact_path="model")
         else:
             mlflow.sklearn.log_model(lr, "model")
